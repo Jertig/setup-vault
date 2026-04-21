@@ -6,16 +6,19 @@ import SearchFilter from './SearchFilter'
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string }>
+  searchParams: Promise<{ q?: string; tag?: string; sort?: string }>
 }) {
-  const { q, tag } = await searchParams
+  const { q, tag, sort } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  let query = supabase.from('setups').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+  let query = supabase.from('setups').select('*').eq('user_id', user.id)
   if (q) query = query.ilike('name', `%${q}%`)
   if (tag) query = query.contains('tags', [tag])
+  if (sort === 'winrate') query = query.order('win_rate', { ascending: false })
+  else if (sort === 'trades') query = query.order('total_trades', { ascending: false })
+  else query = query.order('created_at', { ascending: false })
 
   const { data: setups } = await query
 
@@ -78,7 +81,7 @@ export default async function DashboardPage({
           </div>
         )}
 
-        <SearchFilter allTags={allTags} currentTag={tag} currentQ={q} />
+        <SearchFilter allTags={allTags} currentTag={tag} currentQ={q} currentSort={sort} />
 
         {setups?.length === 0 && (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
