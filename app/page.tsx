@@ -12,8 +12,8 @@ export default function LandingPage() {
           <span style={{ fontSize: '16px', fontWeight: '600', color: '#111' }}>Setup Vault</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Link href="/login" style={{ fontSize: '14px', color: '#555', textDecoration: 'none' }}>Sign in</Link>
-          <Link href="/signup" style={{ background: '#6366f1', color: 'white', padding: '8px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', textDecoration: 'none' }}>Get started free</Link>
+          <Link href="/login" style={{ fontSize: '14px', color: '#555', textDecoration: 'none' }}>Login</Link>
+          <Link href="/signup" style={{ background: '#6366f1', color: 'white', padding: '8px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', textDecoration: 'none' }}>Sign up free</Link>
         </div>
       </nav>
 
@@ -29,10 +29,10 @@ export default function LandingPage() {
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/signup" style={{ background: '#6366f1', color: 'white', padding: '14px 28px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', textDecoration: 'none' }}>
-            Start for free →
+            Sign up free →
           </Link>
           <Link href="/login" style={{ background: 'white', color: '#555', padding: '14px 28px', borderRadius: '10px', fontSize: '16px', fontWeight: '500', textDecoration: 'none', border: '1px solid #e5e5e5' }}>
-            Sign in
+            Login
           </Link>
         </div>
       </div>
