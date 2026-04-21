@@ -1,19 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect, notFound } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import ShareButton from './ShareButton'
 
-export default async function SetupDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export default async function PublicSetupPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
 
   const { data: setup } = await supabase
     .from('setups')
     .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('public_slug', slug)
+    .eq('is_public', true)
     .single()
 
   if (!setup) notFound()
@@ -21,17 +18,24 @@ export default async function SetupDetailPage({ params }: { params: Promise<{ id
   return (
     <div style={{ minHeight: '100vh', background: '#f8f8f8' }}>
 
-      <nav style={{ background: 'white', borderBottom: '1px solid #ebebeb', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
+      <nav style={{ background: 'white', borderBottom: '1px solid #ebebeb', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '30px', height: '30px', background: '#6366f1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ color: 'white', fontSize: '15px', fontWeight: '600' }}>S</span>
           </div>
           <span style={{ fontSize: '16px', fontWeight: '600', color: '#111' }}>Setup Vault</span>
         </div>
-        <Link href="/dashboard" style={{ fontSize: '13px', color: '#888', textDecoration: 'none' }}>← Back</Link>
+        <Link href="/signup" style={{ background: '#6366f1', color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', textDecoration: 'none' }}>
+          Get started free
+        </Link>
       </nav>
 
       <div style={{ maxWidth: '720px', margin: '0 auto', padding: '36px 24px' }}>
+
+        <div style={{ background: '#eef2ff', borderRadius: '10px', padding: '12px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <p style={{ fontSize: '13px', color: '#6366f1', margin: 0 }}>Shared via Setup Vault</p>
+          <Link href="/signup" style={{ fontSize: '13px', color: '#6366f1', fontWeight: '600', textDecoration: 'none' }}>Build your own →</Link>
+        </div>
 
         {setup.screenshot_url && (
           <div style={{ borderRadius: '14px', overflow: 'hidden', marginBottom: '24px', border: '1px solid #ebebeb' }}>
@@ -39,8 +43,7 @@ export default async function SetupDetailPage({ params }: { params: Promise<{ id
           </div>
         )}
 
-        <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #ebebeb', padding: '28px 32px', marginBottom: '16px' }}>
-
+        <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #ebebeb', padding: '28px 32px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px' }}>
             <div>
               <h1 style={{ fontSize: '22px', fontWeight: '600', color: '#111', margin: '0 0 8px' }}>{setup.name}</h1>
@@ -80,39 +83,13 @@ export default async function SetupDetailPage({ params }: { params: Promise<{ id
           )}
 
           {setup.notes && (
-            <div style={{ marginBottom: '24px' }}>
+            <div>
               <h3 style={{ fontSize: '12px', fontWeight: '600', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px' }}>Notes</h3>
               <p style={{ fontSize: '15px', color: '#333', lineHeight: '1.7', margin: 0, whiteSpace: 'pre-wrap' }}>{setup.notes}</p>
             </div>
           )}
-
-          <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <Link href={`/dashboard/${setup.id}/edit`}
-              style={{ background: '#f3f4f6', color: '#374151', padding: '9px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', textDecoration: 'none' }}>
-              Edit
-            </Link>
-            <ShareButton setupId={setup.id} isPublic={setup.is_public} publicSlug={setup.public_slug} />
-            <DeleteButton id={setup.id} />
-          </div>
         </div>
       </div>
     </div>
-  )
-}
-
-function DeleteButton({ id }: { id: string }) {
-  return (
-    <form action={async () => {
-      'use server'
-      const { createClient } = await import('@/lib/supabase/server')
-      const { redirect } = await import('next/navigation')
-      const supabase = await createClient()
-      await supabase.from('setups').delete().eq('id', id)
-      redirect('/dashboard')
-    }}>
-      <button type="submit" style={{ background: '#fef2f2', color: '#dc2626', padding: '9px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', border: 'none', cursor: 'pointer' }}>
-        Delete
-      </button>
-    </form>
   )
 }
