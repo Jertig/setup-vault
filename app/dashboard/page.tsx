@@ -18,10 +18,21 @@ export default async function DashboardPage({
   if (tag) query = query.contains('tags', [tag])
 
   const { data: setups } = await query
+
+  const { data: allSetups } = await supabase.from('setups').select('*').eq('user_id', user.id)
+  const totalSetups = allSetups?.length || 0
+  const setupsWithWR = allSetups?.filter(s => s.win_rate) || []
+  const avgWR = setupsWithWR.length > 0
+    ? Math.round(setupsWithWR.reduce((acc, s) => acc + parseFloat(s.win_rate), 0) / setupsWithWR.length)
+    : null
+  const bestSetup = setupsWithWR.length > 0
+    ? setupsWithWR.reduce((best, s) => parseFloat(s.win_rate) > parseFloat(best.win_rate) ? s : best)
+    : null
+
   const allTags = ['scalping', 'swing', 'breakout', 'reversal', 'FVG', 'order block', 'liquidity grab']
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f0' }}>
+    <div style={{ minHeight: '100vh', background: '#f8f8f8' }}>
 
       <nav style={{ background: 'white', borderBottom: '1px solid #ebebeb', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -43,14 +54,35 @@ export default async function DashboardPage({
 
         <div style={{ marginBottom: '28px' }}>
           <h1 style={{ fontSize: '22px', fontWeight: '600', color: '#111', margin: '0 0 4px' }}>My Setups</h1>
-          <p style={{ fontSize: '14px', color: '#888', margin: 0 }}>{setups?.length || 0} setup{setups?.length !== 1 ? 's' : ''} in your library</p>
+          <p style={{ fontSize: '14px', color: '#888', margin: 0 }}>{totalSetups} setup{totalSetups !== 1 ? 's' : ''} in your library</p>
         </div>
+
+        {totalSetups > 0 && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '28px' }}>
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #ebebeb', padding: '20px 24px' }}>
+              <p style={{ fontSize: '12px', color: '#aaa', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px' }}>Total Setups</p>
+              <p style={{ fontSize: '28px', fontWeight: '700', color: '#111', margin: 0 }}>{totalSetups}</p>
+            </div>
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #ebebeb', padding: '20px 24px' }}>
+              <p style={{ fontSize: '12px', color: '#aaa', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px' }}>Avg Win Rate</p>
+              <p style={{ fontSize: '28px', fontWeight: '700', color: avgWR ? '#22c55e' : '#ccc', margin: 0 }}>{avgWR ? `${avgWR}%` : '—'}</p>
+            </div>
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #ebebeb', padding: '20px 24px' }}>
+              <p style={{ fontSize: '12px', color: '#aaa', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px' }}>Best Setup</p>
+              <p style={{ fontSize: '18px', fontWeight: '700', color: '#6366f1', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bestSetup ? `${bestSetup.name} (${bestSetup.win_rate}%)` : '—'}</p>
+            </div>
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #ebebeb', padding: '20px 24px' }}>
+              <p style={{ fontSize: '12px', color: '#aaa', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px' }}>Tracked</p>
+              <p style={{ fontSize: '28px', fontWeight: '700', color: '#111', margin: 0 }}>{setupsWithWR.length}<span style={{ fontSize: '14px', color: '#aaa', fontWeight: '400' }}> / {totalSetups}</span></p>
+            </div>
+          </div>
+        )}
 
         <SearchFilter allTags={allTags} currentTag={tag} currentQ={q} />
 
         {setups?.length === 0 && (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <p style={{ fontSize: '16px', color: '#888', margin: '0 0 4px' }}>No setups yet</p>
+            <p style={{ fontSize: '16px', color: '#888', margin: '0 0 4px' }}>No setups found</p>
             <p style={{ fontSize: '14px', color: '#aaa', margin: 0 }}>Click "+ New Setup" to add your first one</p>
           </div>
         )}
