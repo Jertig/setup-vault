@@ -75,8 +75,8 @@ export default function SignupPage() {
           </button>
 
           <p style={{ textAlign: 'center', fontSize: '13px', color: '#888', marginTop: '20px', marginBottom: 0 }}>
-            Already have an account?{' '}
-            <a href="/login" style={{ color: '#6366f1', textDecoration: 'none', fontWeight: '500' }}>Sign in</a>
+            Already have an account? {' '}
+            <a href="/login" style={{ color: '#6366f1', textDecoration: 'none', fontWeight: '500' }}>Login</a>
           </p>
         </div>
 

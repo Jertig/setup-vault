@@ -26,7 +26,7 @@ export default async function PublicSetupPage({ params }: { params: Promise<{ sl
           <span style={{ fontSize: '16px', fontWeight: '600', color: '#111' }}>Setup Vault</span>
         </div>
         <Link href="/signup" style={{ background: '#6366f1', color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', textDecoration: 'none' }}>
-          Get started free
+          Sign up free
         </Link>
       </nav>
 
