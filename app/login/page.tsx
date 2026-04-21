@@ -8,40 +8,78 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
   async function handleLogin() {
+    setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
+    setLoading(false)
     if (error) return setError(error.message)
     router.push('/dashboard')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-      <div className="w-full max-w-sm p-8 rounded-xl bg-zinc-900 flex flex-col gap-4">
-        <h1 className="text-xl font-bold text-white">Login</h1>
-        {error && <p className="text-red-400 text-sm">{error}</p>}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          className="bg-zinc-800 text-white px-4 py-2 rounded-lg outline-none"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="bg-zinc-800 text-white px-4 py-2 rounded-lg outline-none"
-        />
-        <button onClick={handleLogin} className="bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg font-medium">
-          Login
-        </button>
-        <p className="text-zinc-400 text-sm text-center">
-          Belum punya akun? <a href="/signup" className="text-indigo-400">Signup</a>
-        </p>
+    <div style={{ minHeight: '100vh', background: '#f5f5f0', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ width: '100%', maxWidth: '400px' }}>
+
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ width: '44px', height: '44px', background: '#6366f1', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <span style={{ color: 'white', fontSize: '20px', fontWeight: '600' }}>S</span>
+          </div>
+          <h1 style={{ fontSize: '22px', fontWeight: '600', color: '#111', margin: '0 0 6px' }}>Welcome back</h1>
+          <p style={{ fontSize: '14px', color: '#888', margin: 0 }}>Sign in to your Setup Vault</p>
+        </div>
+
+        <div style={{ background: 'white', borderRadius: '16px', padding: '32px', border: '1px solid #ebebeb' }}>
+          {error && (
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px 14px', marginBottom: '20px', fontSize: '13px', color: '#dc2626' }}>
+              {error}
+            </div>
+          )}
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#444', marginBottom: '6px' }}>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              style={{ width: '100%', padding: '11px 14px', border: '1px solid #e5e5e5', borderRadius: '8px', fontSize: '15px', outline: 'none', background: '#fafafa', color: '#111' }}
+              onFocus={e => e.target.style.borderColor = '#6366f1'}
+              onBlur={e => e.target.style.borderColor = '#e5e5e5'}
+            />
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#444', marginBottom: '6px' }}>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              style={{ width: '100%', padding: '11px 14px', border: '1px solid #e5e5e5', borderRadius: '8px', fontSize: '15px', outline: 'none', background: '#fafafa', color: '#111' }}
+              onFocus={e => e.target.style.borderColor = '#6366f1'}
+              onBlur={e => e.target.style.borderColor = '#e5e5e5'}
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+            />
+          </div>
+
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            style={{ width: '100%', padding: '12px', background: loading ? '#a5b4fc' : '#6366f1', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '500', cursor: loading ? 'not-allowed' : 'pointer' }}
+          >
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
+
+          <p style={{ textAlign: 'center', fontSize: '13px', color: '#888', marginTop: '20px', marginBottom: 0 }}>
+            No account?{' '}
+            <a href="/signup" style={{ color: '#6366f1', textDecoration: 'none', fontWeight: '500' }}>Create one</a>
+          </p>
+        </div>
+
       </div>
     </div>
   )

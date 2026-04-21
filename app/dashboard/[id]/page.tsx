@@ -18,59 +18,76 @@ export default async function SetupDetailPage({ params }: { params: Promise<{ id
   if (!setup) notFound()
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/dashboard" className="text-zinc-400 hover:text-white">← Back</Link>
-          <h1 className="text-2xl font-bold">{setup.name}</h1>
-        </div>
+    <div style={{ minHeight: '100vh', background: '#f5f5f0' }}>
 
-        <div className="bg-zinc-900 rounded-xl p-6 flex flex-col gap-5">
-          <div className="flex gap-3">
-            <span className="text-xs bg-zinc-800 px-3 py-1 rounded-full">{setup.pair}</span>
-            <span className="text-xs bg-zinc-800 px-3 py-1 rounded-full">{setup.market_condition}</span>
+      <nav style={{ background: 'white', borderBottom: '1px solid #ebebeb', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '30px', height: '30px', background: '#6366f1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ color: 'white', fontSize: '15px', fontWeight: '600' }}>S</span>
+          </div>
+          <span style={{ fontSize: '16px', fontWeight: '600', color: '#111' }}>Setup Vault</span>
+        </div>
+        <Link href="/dashboard" style={{ fontSize: '13px', color: '#888', textDecoration: 'none' }}>← Back</Link>
+      </nav>
+
+      <div style={{ maxWidth: '720px', margin: '0 auto', padding: '36px 24px' }}>
+
+        {setup.screenshot_url && (
+          <div style={{ borderRadius: '14px', overflow: 'hidden', marginBottom: '24px', border: '1px solid #ebebeb' }}>
+            <img src={setup.screenshot_url} alt="chart" style={{ width: '100%', maxHeight: '360px', objectFit: 'cover', display: 'block' }} />
+          </div>
+        )}
+
+        <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #ebebeb', padding: '28px 32px', marginBottom: '16px' }}>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <div>
+              <h1 style={{ fontSize: '22px', fontWeight: '600', color: '#111', margin: '0 0 8px' }}>{setup.name}</h1>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <span style={{ background: '#f3f4f6', color: '#6b7280', fontSize: '12px', padding: '4px 10px', borderRadius: '6px', fontWeight: '500' }}>{setup.pair}</span>
+                <span style={{ background: '#f3f4f6', color: '#6b7280', fontSize: '12px', padding: '4px 10px', borderRadius: '6px', fontWeight: '500', textTransform: 'capitalize' }}>{setup.market_condition}</span>
+              </div>
+            </div>
+            {setup.win_rate && (
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '22px', fontWeight: '700', color: '#22c55e' }}>{setup.win_rate}%</div>
+                <div style={{ fontSize: '12px', color: '#aaa' }}>{setup.total_trades} trades</div>
+              </div>
+            )}
           </div>
 
-          {setup.win_rate && (
-            <p className="text-green-400 font-medium">{setup.win_rate}% WR · {setup.total_trades} trades</p>
-          )}
-          
-          {setup.screenshot_url && (
-  <img src={setup.screenshot_url} alt="chart screenshot" className="rounded-lg w-full object-cover" />
-)}
-
-          {setup.entry_rules && (
-            <div>
-              <h3 className="text-sm text-zinc-400 mb-2">Entry Rules</h3>
-              <p className="text-sm whitespace-pre-wrap">{setup.entry_rules}</p>
-            </div>
-          )}
-
-          {setup.exit_rules && (
-            <div>
-              <h3 className="text-sm text-zinc-400 mb-2">Exit Rules</h3>
-              <p className="text-sm whitespace-pre-wrap">{setup.exit_rules}</p>
-            </div>
-          )}
-
           {setup.tags?.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '24px' }}>
               {setup.tags.map((tag: string) => (
-                <span key={tag} className="text-xs bg-indigo-900/50 text-indigo-300 px-3 py-1 rounded-full">{tag}</span>
+                <span key={tag} style={{ background: '#eef2ff', color: '#6366f1', fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: '500' }}>{tag}</span>
               ))}
             </div>
           )}
 
-          {setup.notes && (
-            <div>
-              <h3 className="text-sm text-zinc-400 mb-2">Notes</h3>
-              <p className="text-sm whitespace-pre-wrap">{setup.notes}</p>
+          {setup.entry_rules && (
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px' }}>Entry Rules</h3>
+              <p style={{ fontSize: '15px', color: '#333', lineHeight: '1.7', margin: 0, whiteSpace: 'pre-wrap' }}>{setup.entry_rules}</p>
             </div>
           )}
 
-          <div className="flex gap-3 pt-2">
+          {setup.exit_rules && (
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px' }}>Exit Rules</h3>
+              <p style={{ fontSize: '15px', color: '#333', lineHeight: '1.7', margin: 0, whiteSpace: 'pre-wrap' }}>{setup.exit_rules}</p>
+            </div>
+          )}
+
+          {setup.notes && (
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px' }}>Notes</h3>
+              <p style={{ fontSize: '15px', color: '#333', lineHeight: '1.7', margin: 0, whiteSpace: 'pre-wrap' }}>{setup.notes}</p>
+            </div>
+          )}
+
+          <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px', display: 'flex', gap: '10px' }}>
             <Link href={`/dashboard/${setup.id}/edit`}
-              className="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition-colors">
+              style={{ background: '#f3f4f6', color: '#374151', padding: '9px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', textDecoration: 'none' }}>
               Edit
             </Link>
             <DeleteButton id={setup.id} />
@@ -91,7 +108,7 @@ function DeleteButton({ id }: { id: string }) {
       await supabase.from('setups').delete().eq('id', id)
       redirect('/dashboard')
     }}>
-      <button type="submit" className="bg-red-900/50 hover:bg-red-900 text-red-400 px-4 py-2 rounded-lg text-sm transition-colors">
+      <button type="submit" style={{ background: '#fef2f2', color: '#dc2626', padding: '9px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', border: 'none', cursor: 'pointer' }}>
         Delete
       </button>
     </form>

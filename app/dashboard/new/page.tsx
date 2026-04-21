@@ -8,6 +8,17 @@ const TAGS = ['scalping', 'swing', 'breakout', 'reversal', 'FVG', 'order block',
 const PAIRS = ['BTC', 'ETH', 'SOL', 'All']
 const CONDITIONS = ['trending', 'ranging', 'volatile', 'any']
 
+const inputStyle = {
+  width: '100%', padding: '11px 14px', border: '1px solid #e5e5e5',
+  borderRadius: '8px', fontSize: '15px', outline: 'none',
+  background: '#fafafa', color: '#111', fontFamily: 'inherit'
+}
+
+const labelStyle = {
+  display: 'block', fontSize: '13px', fontWeight: '500' as const,
+  color: '#444', marginBottom: '6px'
+}
+
 export default function NewSetupPage() {
   const router = useRouter()
   const supabase = createClient()
@@ -37,28 +48,22 @@ export default function NewSetupPage() {
   async function handleSubmit() {
     if (!form.name) return alert('Nama setup wajib diisi')
     setLoading(true)
-
     const { data: { user } } = await supabase.auth.getUser()
     let screenshot_url = null
 
     if (imageFile) {
       const ext = imageFile.name.split('.').pop()
       const path = `${user!.id}/${Date.now()}.${ext}`
-      const { error: uploadError } = await supabase.storage
-        .from('screenshots')
-        .upload(path, imageFile)
-      if (uploadError) {
-        setLoading(false)
-        return alert('Upload failed: ' + uploadError.message)
-      }
+      const { error: uploadError } = await supabase.storage.from('screenshots').upload(path, imageFile)
+      if (uploadError) { setLoading(false); return alert('Upload failed: ' + uploadError.message) }
       const { data: { publicUrl } } = supabase.storage.from('screenshots').getPublicUrl(path)
       screenshot_url = publicUrl
     }
 
     const { error } = await supabase.from('setups').insert({
-      user_id: user!.id,
-      name: form.name, pair: form.pair, market_condition: form.market_condition,
-      entry_rules: form.entry_rules, exit_rules: form.exit_rules, tags: form.tags,
+      user_id: user!.id, name: form.name, pair: form.pair,
+      market_condition: form.market_condition, entry_rules: form.entry_rules,
+      exit_rules: form.exit_rules, tags: form.tags,
       win_rate: form.win_rate ? parseFloat(form.win_rate) : null,
       total_trades: form.total_trades ? parseInt(form.total_trades) : 0,
       notes: form.notes, screenshot_url,
@@ -69,94 +74,121 @@ export default function NewSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-8 max-w-2xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <button onClick={() => router.back()} className="text-zinc-400 hover:text-white">← Back</button>
-        <h1 className="text-2xl font-bold">New Setup</h1>
-      </div>
+    <div style={{ minHeight: '100vh', background: '#f5f5f0' }}>
 
-      <div className="flex flex-col gap-5">
-        <div>
-          <label className="text-sm text-zinc-400 mb-1 block">Nama Setup *</label>
-          <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            placeholder="e.g. FVG Reversal" className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none" />
+      <nav style={{ background: 'white', borderBottom: '1px solid #ebebeb', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '30px', height: '30px', background: '#6366f1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ color: 'white', fontSize: '15px', fontWeight: '600' }}>S</span>
+          </div>
+          <span style={{ fontSize: '16px', fontWeight: '600', color: '#111' }}>Setup Vault</span>
         </div>
+        <button onClick={() => router.back()} style={{ background: 'none', border: 'none', fontSize: '13px', color: '#888', cursor: 'pointer' }}>← Back</button>
+      </nav>
 
-        <div className="grid grid-cols-2 gap-4">
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '36px 24px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: '600', color: '#111', margin: '0 0 24px' }}>New Setup</h1>
+
+        <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #ebebeb', padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
           <div>
-            <label className="text-sm text-zinc-400 mb-1 block">Pair</label>
-            <select value={form.pair} onChange={e => setForm(f => ({ ...f, pair: e.target.value }))}
-              className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none">
-              {PAIRS.map(p => <option key={p}>{p}</option>)}
-            </select>
+            <label style={labelStyle}>Nama Setup *</label>
+            <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              placeholder="e.g. FVG Reversal" style={inputStyle}
+              onFocus={e => e.target.style.borderColor = '#6366f1'}
+              onBlur={e => e.target.style.borderColor = '#e5e5e5'} />
           </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <label style={labelStyle}>Pair</label>
+              <select value={form.pair} onChange={e => setForm(f => ({ ...f, pair: e.target.value }))}
+                style={{ ...inputStyle }}>
+                {PAIRS.map(p => <option key={p}>{p}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Market Condition</label>
+              <select value={form.market_condition} onChange={e => setForm(f => ({ ...f, market_condition: e.target.value }))}
+                style={{ ...inputStyle }}>
+                {CONDITIONS.map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+
           <div>
-            <label className="text-sm text-zinc-400 mb-1 block">Market Condition</label>
-            <select value={form.market_condition} onChange={e => setForm(f => ({ ...f, market_condition: e.target.value }))}
-              className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none">
-              {CONDITIONS.map(c => <option key={c}>{c}</option>)}
-            </select>
+            <label style={labelStyle}>Screenshot Chart</label>
+            <input type="file" accept="image/*" onChange={handleImageChange}
+              style={{ ...inputStyle, padding: '9px 14px' }} />
+            {imagePreview && (
+              <img src={imagePreview} alt="preview" style={{ marginTop: '12px', borderRadius: '10px', maxHeight: '200px', objectFit: 'cover', width: '100%', border: '1px solid #ebebeb' }} />
+            )}
           </div>
-        </div>
 
-        <div>
-          <label className="text-sm text-zinc-400 mb-1 block">Screenshot Chart</label>
-          <input type="file" accept="image/*" onChange={handleImageChange}
-            className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none text-zinc-400 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-zinc-700 file:text-white" />
-          {imagePreview && (
-            <img src={imagePreview} alt="preview" className="mt-3 rounded-lg max-h-48 object-cover w-full" />
-          )}
-        </div>
-
-        <div>
-          <label className="text-sm text-zinc-400 mb-1 block">Entry Rules</label>
-          <textarea value={form.entry_rules} onChange={e => setForm(f => ({ ...f, entry_rules: e.target.value }))}
-            rows={4} placeholder="Describe your entry conditions..." className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none resize-none" />
-        </div>
-
-        <div>
-          <label className="text-sm text-zinc-400 mb-1 block">Exit Rules</label>
-          <textarea value={form.exit_rules} onChange={e => setForm(f => ({ ...f, exit_rules: e.target.value }))}
-            rows={4} placeholder="Describe your exit conditions..." className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none resize-none" />
-        </div>
-
-        <div>
-          <label className="text-sm text-zinc-400 mb-2 block">Tags</label>
-          <div className="flex flex-wrap gap-2">
-            {TAGS.map(tag => (
-              <button key={tag} onClick={() => toggleTag(tag)}
-                className={`px-3 py-1 rounded-full text-sm border transition-colors ${form.tags.includes(tag) ? 'bg-indigo-600 border-indigo-600' : 'border-zinc-700 hover:border-zinc-500'}`}>
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm text-zinc-400 mb-1 block">Win Rate (%)</label>
-            <input type="number" min="0" max="100" value={form.win_rate}
-              onChange={e => setForm(f => ({ ...f, win_rate: e.target.value }))}
-              placeholder="e.g. 65" className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none" />
+            <label style={labelStyle}>Entry Rules</label>
+            <textarea value={form.entry_rules} onChange={e => setForm(f => ({ ...f, entry_rules: e.target.value }))}
+              rows={4} placeholder="Describe your entry conditions..."
+              style={{ ...inputStyle, resize: 'none', lineHeight: '1.6' }}
+              onFocus={e => e.target.style.borderColor = '#6366f1'}
+              onBlur={e => e.target.style.borderColor = '#e5e5e5'} />
           </div>
+
           <div>
-            <label className="text-sm text-zinc-400 mb-1 block">Total Trades</label>
-            <input type="number" min="0" value={form.total_trades}
-              onChange={e => setForm(f => ({ ...f, total_trades: e.target.value }))}
-              placeholder="e.g. 20" className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none" />
+            <label style={labelStyle}>Exit Rules</label>
+            <textarea value={form.exit_rules} onChange={e => setForm(f => ({ ...f, exit_rules: e.target.value }))}
+              rows={4} placeholder="Describe your exit conditions..."
+              style={{ ...inputStyle, resize: 'none', lineHeight: '1.6' }}
+              onFocus={e => e.target.style.borderColor = '#6366f1'}
+              onBlur={e => e.target.style.borderColor = '#e5e5e5'} />
           </div>
-        </div>
 
-        <div>
-          <label className="text-sm text-zinc-400 mb-1 block">Notes</label>
-          <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-            rows={3} placeholder="Additional notes..." className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none resize-none" />
-        </div>
+          <div>
+            <label style={labelStyle}>Tags</label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {TAGS.map(tag => (
+                <button key={tag} onClick={() => toggleTag(tag)} type="button"
+                  style={{ padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '500', border: 'none', cursor: 'pointer', background: form.tags.includes(tag) ? '#6366f1' : '#f3f4f6', color: form.tags.includes(tag) ? 'white' : '#6b7280' }}>
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <button onClick={handleSubmit} disabled={loading}
-          className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 py-3 rounded-lg font-medium transition-colors">
-          {loading ? 'Saving...' : 'Save Setup'}
-        </button>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <label style={labelStyle}>Win Rate (%)</label>
+              <input type="number" min="0" max="100" value={form.win_rate}
+                onChange={e => setForm(f => ({ ...f, win_rate: e.target.value }))}
+                placeholder="e.g. 65" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#6366f1'}
+                onBlur={e => e.target.style.borderColor = '#e5e5e5'} />
+            </div>
+            <div>
+              <label style={labelStyle}>Total Trades</label>
+              <input type="number" min="0" value={form.total_trades}
+                onChange={e => setForm(f => ({ ...f, total_trades: e.target.value }))}
+                placeholder="e.g. 20" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#6366f1'}
+                onBlur={e => e.target.style.borderColor = '#e5e5e5'} />
+            </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Notes</label>
+            <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+              rows={3} placeholder="Additional notes..."
+              style={{ ...inputStyle, resize: 'none', lineHeight: '1.6' }}
+              onFocus={e => e.target.style.borderColor = '#6366f1'}
+              onBlur={e => e.target.style.borderColor = '#e5e5e5'} />
+          </div>
+
+          <button onClick={handleSubmit} disabled={loading}
+            style={{ width: '100%', padding: '13px', background: loading ? '#a5b4fc' : '#6366f1', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '500', cursor: loading ? 'not-allowed' : 'pointer' }}>
+            {loading ? 'Saving...' : 'Save Setup'}
+          </button>
+
+        </div>
       </div>
     </div>
   )

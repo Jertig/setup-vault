@@ -19,23 +19,30 @@ export default function SearchFilter({ allTags, currentTag, currentQ }: {
   }, [searchParams, router])
 
   return (
-    <div className="flex flex-col gap-3">
-      <input
-        defaultValue={currentQ}
-        onChange={e => updateParam('q', e.target.value || null)}
-        placeholder="Search setups..."
-        className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none text-white placeholder:text-zinc-500"
-      />
-      <div className="flex flex-wrap gap-2">
+    <div style={{ marginBottom: '8px' }}>
+      <div style={{ position: 'relative', marginBottom: '12px' }}>
+        <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          defaultValue={currentQ}
+          onChange={e => updateParam('q', e.target.value || null)}
+          placeholder="Search setups..."
+          style={{ width: '100%', padding: '11px 14px 11px 40px', border: '1px solid #e5e5e5', borderRadius: '10px', fontSize: '14px', outline: 'none', background: 'white', color: '#111' }}
+          onFocus={e => e.target.style.borderColor = '#6366f1'}
+          onBlur={e => e.target.style.borderColor = '#e5e5e5'}
+        />
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
         <button
           onClick={() => updateParam('tag', null)}
-          className={`px-3 py-1 rounded-full text-sm border transition-colors ${!currentTag ? 'bg-indigo-600 border-indigo-600' : 'border-zinc-700 hover:border-zinc-500'}`}>
+          style={{ padding: '5px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '500', border: 'none', cursor: 'pointer', background: !currentTag ? '#6366f1' : '#f3f4f6', color: !currentTag ? 'white' : '#6b7280' }}>
           All
         </button>
         {allTags.map(tag => (
           <button key={tag}
             onClick={() => updateParam('tag', currentTag === tag ? null : tag)}
-            className={`px-3 py-1 rounded-full text-sm border transition-colors ${currentTag === tag ? 'bg-indigo-600 border-indigo-600' : 'border-zinc-700 hover:border-zinc-500'}`}>
+            style={{ padding: '5px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '500', border: 'none', cursor: 'pointer', background: currentTag === tag ? '#6366f1' : '#f3f4f6', color: currentTag === tag ? 'white' : '#6b7280' }}>
             {tag}
           </button>
         ))}
