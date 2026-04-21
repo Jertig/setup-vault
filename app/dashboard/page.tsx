@@ -26,10 +26,13 @@ export default async function DashboardPage({
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Setup Vault</h1>
-          <Link href="/dashboard/new"
-            className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-            + New Setup
-          </Link>
+          <div className="flex items-center gap-4">
+            <LogoutButton />
+            <Link href="/dashboard/new"
+              className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+              + New Setup
+            </Link>
+          </div>
         </div>
 
         <SearchFilter allTags={allTags} currentTag={tag} currentQ={q} />
@@ -44,9 +47,9 @@ export default async function DashboardPage({
           {setups?.map(setup => (
             <Link key={setup.id} href={`/dashboard/${setup.id}`}
               className="bg-zinc-900 rounded-xl p-5 hover:bg-zinc-800 transition-colors">
-                {setup.screenshot_url && (
-  <img src={setup.screenshot_url} alt={setup.name} className="w-full h-32 object-cover rounded-lg mb-3" />
-)}
+              {setup.screenshot_url && (
+                <img src={setup.screenshot_url} alt={setup.name} className="w-full h-32 object-cover rounded-lg mb-3" />
+              )}
               <div className="flex items-start justify-between mb-3">
                 <h2 className="font-semibold text-white">{setup.name}</h2>
                 <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">{setup.pair}</span>
@@ -65,5 +68,22 @@ export default async function DashboardPage({
         </div>
       </div>
     </div>
+  )
+}
+
+function LogoutButton() {
+  return (
+    <form action={async () => {
+      'use server'
+      const { createClient } = await import('@/lib/supabase/server')
+      const { redirect } = await import('next/navigation')
+      const supabase = await createClient()
+      await supabase.auth.signOut()
+      redirect('/login')
+    }}>
+      <button type="submit" className="text-sm text-zinc-400 hover:text-white transition-colors">
+        Logout
+      </button>
+    </form>
   )
 }
