@@ -44,6 +44,9 @@ export default async function DashboardPage({
           {setups?.map(setup => (
             <Link key={setup.id} href={`/dashboard/${setup.id}`}
               className="bg-zinc-900 rounded-xl p-5 hover:bg-zinc-800 transition-colors">
+                {setup.screenshot_url && (
+  <img src={setup.screenshot_url} alt={setup.name} className="w-full h-32 object-cover rounded-lg mb-3" />
+)}
               <div className="flex items-start justify-between mb-3">
                 <h2 className="font-semibold text-white">{setup.name}</h2>
                 <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">{setup.pair}</span>

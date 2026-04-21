@@ -34,6 +34,10 @@ export default async function SetupDetailPage({ params }: { params: Promise<{ id
           {setup.win_rate && (
             <p className="text-green-400 font-medium">{setup.win_rate}% WR · {setup.total_trades} trades</p>
           )}
+          
+          {setup.screenshot_url && (
+  <img src={setup.screenshot_url} alt="chart screenshot" className="rounded-lg w-full object-cover" />
+)}
 
           {setup.entry_rules && (
             <div>

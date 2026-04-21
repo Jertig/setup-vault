@@ -12,17 +12,20 @@ export default function NewSetupPage() {
   const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [form, setForm] = useState({
-    name: '',
-    pair: 'All',
-    market_condition: 'any',
-    entry_rules: '',
-    exit_rules: '',
-    tags: [] as string[],
-    win_rate: '',
-    total_trades: '',
-    notes: '',
+    name: '', pair: 'All', market_condition: 'any',
+    entry_rules: '', exit_rules: '', tags: [] as string[],
+    win_rate: '', total_trades: '', notes: '',
   })
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
 
   function toggleTag(tag: string) {
     setForm(f => ({
@@ -34,18 +37,31 @@ export default function NewSetupPage() {
   async function handleSubmit() {
     if (!form.name) return alert('Nama setup wajib diisi')
     setLoading(true)
+
     const { data: { user } } = await supabase.auth.getUser()
+    let screenshot_url = null
+
+    if (imageFile) {
+      const ext = imageFile.name.split('.').pop()
+      const path = `${user!.id}/${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('screenshots')
+        .upload(path, imageFile)
+      if (uploadError) {
+        setLoading(false)
+        return alert('Upload failed: ' + uploadError.message)
+      }
+      const { data: { publicUrl } } = supabase.storage.from('screenshots').getPublicUrl(path)
+      screenshot_url = publicUrl
+    }
+
     const { error } = await supabase.from('setups').insert({
       user_id: user!.id,
-      name: form.name,
-      pair: form.pair,
-      market_condition: form.market_condition,
-      entry_rules: form.entry_rules,
-      exit_rules: form.exit_rules,
-      tags: form.tags,
+      name: form.name, pair: form.pair, market_condition: form.market_condition,
+      entry_rules: form.entry_rules, exit_rules: form.exit_rules, tags: form.tags,
       win_rate: form.win_rate ? parseFloat(form.win_rate) : null,
       total_trades: form.total_trades ? parseInt(form.total_trades) : 0,
-      notes: form.notes,
+      notes: form.notes, screenshot_url,
     })
     setLoading(false)
     if (error) return alert(error.message)
@@ -81,6 +97,15 @@ export default function NewSetupPage() {
               {CONDITIONS.map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
+        </div>
+
+        <div>
+          <label className="text-sm text-zinc-400 mb-1 block">Screenshot Chart</label>
+          <input type="file" accept="image/*" onChange={handleImageChange}
+            className="w-full bg-zinc-900 px-4 py-2 rounded-lg outline-none text-zinc-400 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-zinc-700 file:text-white" />
+          {imagePreview && (
+            <img src={imagePreview} alt="preview" className="mt-3 rounded-lg max-h-48 object-cover w-full" />
+          )}
         </div>
 
         <div>
